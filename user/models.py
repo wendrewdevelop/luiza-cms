@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.contrib.auth.models import AbstractUser
@@ -9,6 +10,11 @@ from .managers import UserManager
 
 
 class User(AbstractUser):
+    id = models.UUIDField(
+        primary_key=True, 
+        default=uuid.uuid4,
+        editable=False
+    )
     email = models.EmailField('email address')
     username = models.CharField(max_length=255, unique=True)
     first_name = models.CharField('first name', max_length=30, blank=True)

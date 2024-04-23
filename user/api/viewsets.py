@@ -27,23 +27,44 @@ class UserViewset(ModelViewSet):
     
     def list(self, request, *args, **kwargs):
         return super(UserViewset, self).list(request, *args, **kwargs)
+    
+    @action(detail=True, methods=['get'])
+    def user_info(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+        queryset = User.objects.all()
+        if user_id:
+            queryset = User.objects.filter(id=user_id)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def create_user(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        password = request.data.get('password')
 
-    def destroy(self, request, *args, **kwargs):
-        return super(UserViewset, self).destroy(request, *args, **kwargs)
+        user_instance = User(
+            email=email,
+            username=email,
+            first_name=first_name,
+            last_name=last_name
+        )
+        user_instance.set_password(password)
+        user_instance.save()
 
-    def retrieve(self, request, *args, **kwargs):
-        return super(UserViewset, self).retrieve(request, *args, **kwargs)
+        return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 
-    def update(self, request, *args, **kwargs):
-        return super(UserViewset, self).update(request, *args, **kwargs)
+    @action(detail=True, methods=['put'], permission_classes=[AllowAny])
+    def update_user_info(self, request, *args, **kwargs):
+        user_instance = self.get_object()  # Obtenha a instância do usuário com base na pk
+        data = request.data
 
-    def partial_update(self, request, *args, **kwargs):
-        return super(UserViewset, self).partial_update(request, *args, **kwargs)
+        for key, value in data.items():
+            setattr(user_instance, key, value)
+
+        user_instance.save()
+
+        serializer = self.get_serializer(user_instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)

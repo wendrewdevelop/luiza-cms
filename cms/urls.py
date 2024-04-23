@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
 from user.api.viewsets import UserViewset
+from plans.api.viewsets import UserPlanViewset
 
 
 router = routers.DefaultRouter()
@@ -27,6 +28,11 @@ router.register(
     r'users', 
     UserViewset, 
     basename='User'
+)
+router.register(
+    r'user_plans', 
+    UserPlanViewset, 
+    basename='UserPlan'
 )
 
 urlpatterns = [
