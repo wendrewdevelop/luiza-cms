@@ -77,4 +77,15 @@ class UserPlan(models.Model):
             return Response({'message': 'Plan selected successfully!'}, status=status.HTTP_201_CREATED)
         except Exception as error:
             return Response({'message': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    def update_user_plan(user_id: uuid, new_plan_id: uuid):
+        try:
+            plan_instance = UserPlan.objects.filter(
+                user=user_id
+            ).first()
+            plan_instance.plan = new_plan_id
+            plan_instance.save()
+            return Response({'message': 'Plan updated successfully!'}, status=status.HTTP_201_CREATED)
+        except Exception as error:
+            return Response({'message': f'{error}'}, status=status.HTTP_400_BAD_REQUEST)
 

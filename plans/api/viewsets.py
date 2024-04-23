@@ -55,15 +55,17 @@ class UserPlanViewset(ModelViewSet):
 
         return plan_assign_instance
 
-    @action(detail=True, methods=['put'], permission_classes=[AllowAny])
-    def update_user_info(self, request, *args, **kwargs):
-        user_instance = self.get_object()  # Obtenha a instância do usuário com base na pk
-        data = request.data
+    @action(detail=True, methods=['put'])
+    def update_user_plan(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+        plan_name = request.data.get('plan')
 
-        for key, value in data.items():
-            setattr(user_instance, key, value)
+        plan_instance = Plans.objects.filter(
+            plan=plan_name
+        ).first()
+        new_plan_instance = UserPlan.update_user_plan(
+            user_id=user_id,
+            new_plan_id=plan_instance
+        )
 
-        user_instance.save()
-
-        serializer = self.get_serializer(user_instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return new_plan_instance
